@@ -1,5 +1,5 @@
 def solve_part1(depths):
-    return sum(int(prev < next) for prev, next in zip(depths, depths[1:]))
+    return sum(prev < curr for prev, curr in zip(depths, depths[1:]))
 
 
 def solve_part2(depths):
