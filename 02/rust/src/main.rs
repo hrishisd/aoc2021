@@ -5,8 +5,7 @@ use std::str::FromStr;
 #[derive(Debug, Clone, Copy)]
 enum Command {
     Forward(i32),
-    Up(i32),
-    Down(i32),
+    Vertical(i32),
 }
 
 impl FromStr for Command {
@@ -20,8 +19,8 @@ impl FromStr for Command {
         let num = num.parse::<i32>()?;
         match direction {
             "forward" => anyhow::Ok(Command::Forward(num)),
-            "up" => anyhow::Ok(Command::Up(num)),
-            "down" => anyhow::Ok(Command::Down(num)),
+            "up" => anyhow::Ok(Command::Vertical(-num)),
+            "down" => anyhow::Ok(Command::Vertical(num)),
             _ => Err(anyhow!("Invalid direction: {}", direction)),
         }
     }
@@ -30,26 +29,18 @@ impl FromStr for Command {
 fn solve_part1(commands: &[Command]) -> i32 {
     let (final_x, final_y) = commands.iter().fold((0, 0), |(x, y), cmd| match cmd {
         Command::Forward(dx) => (x + dx, y),
-        Command::Up(dy) => (x, y - dy),
-        Command::Down(dy) => (x, y + dy),
+        Command::Vertical(dy) => (x, y + dy),
     });
     final_x * final_y
 }
 
 fn solve_part2(commands: &[Command]) -> i32 {
-    let mut aim = 0;
-    let mut x = 0;
-    let mut depth = 0;
-    for cmd in commands {
-        match cmd {
-            Command::Forward(val) => {
-                x += val;
-                depth += aim * val;
-            }
-            Command::Up(val) => aim -= val,
-            Command::Down(val) => aim += val,
-        }
-    }
+    let (_, x, depth) = commands
+        .iter()
+        .fold((0, 0, 0), |(aim, x, depth), cmd| match cmd {
+            Command::Forward(val) => (aim, x + val, depth + aim * val),
+            Command::Vertical(val) => (aim + val, x, depth),
+        });
     x * depth
 }
 
