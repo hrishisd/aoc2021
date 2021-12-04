@@ -1,16 +1,17 @@
 use std::{num::ParseIntError, str::FromStr};
 
 #[derive(Debug)]
-struct BingoBoard([[Option<u8>; 5]; 5]);
+///Marked squares are represented as 0.
+struct BingoBoard([[u8; 5]; 5]);
 
 impl FromStr for BingoBoard {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut result = [[Some(0u8); 5]; 5];
+        let mut result = [[0; 5]; 5];
         for (i, line) in s.lines().enumerate() {
             for (j, num) in line.split_whitespace().enumerate() {
-                result[i][j] = Some(num.parse::<u8>()?);
+                result[i][j] = num.parse::<u8>()?;
             }
         }
         Ok(BingoBoard(result))
@@ -21,8 +22,8 @@ impl BingoBoard {
     fn mark(&mut self, num: u8) {
         for row in self.0.iter_mut() {
             for square in row.iter_mut() {
-                if square == &Some(num) {
-                    square.take();
+                if square == &num {
+                    *square = 0;
                 }
             }
         }
@@ -30,18 +31,13 @@ impl BingoBoard {
 
     fn has_bingo(&self) -> bool {
         let grid = self.0;
-        let horiontal_bingo = grid.iter().any(|row| row.iter().all(Option::is_none));
-        let vertical_bingo = (0..5).any(|col| (0..5).all(|row| grid[row][col].is_none()));
+        let horiontal_bingo = grid.iter().any(|row| row.iter().all(|&sq| sq == 0));
+        let vertical_bingo = (0..5).any(|col| (0..5).all(|row| grid[row][col] == 0));
         horiontal_bingo || vertical_bingo
     }
 
     fn get_unmarked_sum(&self) -> i32 {
-        self.0
-            .iter()
-            .flat_map(|row| row.iter())
-            .flat_map(Option::iter)
-            .map(|&i| i as i32)
-            .sum()
+        self.0.iter().flatten().map(|&i| i as i32).sum()
     }
 }
 
@@ -65,12 +61,10 @@ fn main() -> anyhow::Result<()> {
     let input = include_str!("../../input.txt");
     let mut input = input.split("\n\n");
     let draws = input.next().expect("Invalid input");
-
     let draws = draws
         .split(',')
         .map(u8::from_str)
         .collect::<Result<Vec<u8>, _>>()?;
-
     let boards = input.map(BingoBoard::from_str).collect::<Result<_, _>>()?;
 
     let scores = score_game(boards, &draws);
