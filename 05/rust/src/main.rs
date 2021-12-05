@@ -1,5 +1,4 @@
 use scan_fmt::scan_fmt;
-use std::ops::Div;
 
 type Segment = ((i16, i16), (i16, i16));
 const N: usize = 1000;
@@ -12,42 +11,30 @@ fn main() {
 }
 
 fn part1(line_segments: &[Segment]) -> usize {
-    solve_num_overlaps(line_segments, |((x1, y1), (x2, y2))| x1 == x2 || y1 == y2)
+    num_overlaps(
+        line_segments
+            .iter()
+            .filter(|((x1, y1), (x2, y2))| x1 == x2 || y1 == y2)
+            .copied(),
+    )
 }
 
 fn part2(line_segments: &[Segment]) -> usize {
-    solve_num_overlaps(line_segments, |_| true)
+    num_overlaps(line_segments.iter().copied())
 }
 
-fn solve_num_overlaps(line_segments: &[Segment], predicate: fn(Segment) -> bool) -> usize {
+fn num_overlaps(line_segments: impl Iterator<Item = Segment>) -> usize {
     let mut grid = [[0; N]; N];
-    let mut num_overlaps = 0;
-    line_segments
-        .iter()
-        .filter(|&&segment| predicate(segment))
-        .for_each(|((mut x1, mut y1), (x2, y2))| {
-            let vertical_dist = y2 - y1;
-            let horizontal_dist = x2 - x1;
-            let max_dist = vertical_dist.abs().max(horizontal_dist.abs());
-            let vertical_step = vertical_dist.div(max_dist);
-            let horizontal_step = horizontal_dist.div(max_dist);
-            while x1 != *x2 || y1 != *y2 {
-                num_overlaps += set_grid(&mut grid, x1, y1);
-                x1 += horizontal_step;
-                y1 += vertical_step;
-            }
-            num_overlaps += set_grid(&mut grid, x1, y1);
-        });
-    num_overlaps
-}
-
-fn set_grid(grid: &mut [[i16; N]], x: i16, y: i16) -> usize {
-    let (x, y) = (x as usize, y as usize);
-    let overlap = grid[x][y] == 1;
-    if grid[x][y] == 0 || grid[x][y] == 1 {
-        grid[x][y] += 1
+    for ((mut x1, mut y1), (x2, y2)) in line_segments {
+        let dx = (x2 - x1).signum();
+        let dy = (y2 - y1).signum();
+        while (x1, y1) != (x2 + dx, y2 + dy) {
+            grid[x1 as usize][y1 as usize] += 1;
+            x1 += dx;
+            y1 += dy;
+        }
     }
-    overlap as usize
+    grid.iter().flatten().filter(|&&i| i > 1).count()
 }
 
 fn parse_line_segment(line: &str) -> Segment {

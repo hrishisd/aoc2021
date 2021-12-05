@@ -1,32 +1,32 @@
+from itertools import repeat
+
+
 def part1(segments):
-    return solve_num_overlaps(
-        s for s in segments if s[0][0] == s[1][0] or s[0][1] == s[1][1]
-    )
+    def horizontal(s):
+        return s[0][0] == s[1][0] or s[0][1] == s[1][1]
+
+    return solve_num_overlaps(filter(horizontal, segments))
 
 
 def part2(segments):
     return solve_num_overlaps(segments)
 
 
-def is_horizontal_or_vertical(segment):
-    (x1, y1), (x2, y2) = segment
-    return x1 == x2 or y1 == y2
-
-
 def solve_num_overlaps(segments):
+    def sign(n):
+        return 0 if n == 0 else 1 if n > 0 else -1
+
+    def inclusive_range(start, stop, step):
+        return repeat(start) if step == 0 else range(start, stop + step, step)
+
     grid = [[0] * 1000 for _ in range(1000)]
     for (x1, y1), (x2, y2) in segments:
-        vertical_diff = y2 - y1
-        horizontal_diff = x2 - x1
-        max_diff = max(abs(vertical_diff), abs(horizontal_diff))
-        vertical_step = vertical_diff // abs(max_diff)
-        horizontal_step = horizontal_diff // abs(max_diff)
-        while x1 != x2 or y1 != y2:
-            grid[x1][y1] = 1 if grid[x1][y1] == 0 else 2
-            x1 += horizontal_step
-            y1 += vertical_step
-        grid[x1][y1] = 1 if grid[x1][y1] == 0 else 2
-    return len([sq for row in grid for sq in row if sq == 2])
+        for x, y in zip(
+            inclusive_range(x1, x2, sign(x2 - x1)),
+            inclusive_range(y1, y2, sign(y2 - y1)),
+        ):
+            grid[x][y] += 1
+    return sum((cell > 1 for row in grid for cell in row))
 
 
 with open("../input.txt") as f:
