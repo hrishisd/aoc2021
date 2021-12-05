@@ -16,7 +16,7 @@ impl FromStr for Command {
             .split_ascii_whitespace()
             .next_tuple()
             .ok_or(anyhow!("invalid command string"))?;
-        let num = num.parse::<i32>()?;
+        let num = num.parse()?;
         match direction {
             "forward" => anyhow::Ok(Command::Forward(num)),
             "up" => anyhow::Ok(Command::Vertical(-num)),
@@ -48,8 +48,8 @@ fn main() -> anyhow::Result<()> {
     let input = include_str!("../../input.txt");
     let commands = input
         .lines()
-        .map(|s| s.parse::<Command>())
-        .collect::<anyhow::Result<Vec<Command>>>()?;
+        .map(Command::from_str)
+        .collect::<anyhow::Result<Vec<_>>>()?;
     println!("part 1: {}", solve_part1(&commands));
     println!("part 2: {}", solve_part2(&commands));
     Ok(())

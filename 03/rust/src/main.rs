@@ -55,7 +55,7 @@ fn main() -> anyhow::Result<()> {
     let bitstrings = input
         .lines()
         .map(BitString::from_str)
-        .collect::<Result<Vec<BitString>, ParseIntError>>()?;
+        .collect::<Result<Vec<_>, _>>()?;
     println!("part 1: {}", part1(&bitstrings));
     println!("part 2: {}", part2(&bitstrings));
     Ok(())
