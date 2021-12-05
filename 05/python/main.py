@@ -1,16 +1,11 @@
-def part1(grid, segments):
-    populate_grid(grid, filter(is_horizontal_or_vertical, segments))
-    return num_overlapping_points(grid)
+def part1(segments):
+    return solve_num_overlaps(
+        s for s in segments if s[0][0] == s[1][0] or s[0][1] == s[1][1]
+    )
 
 
-def part2(grid, segments):
-    populate_grid(
-        grid, (s for s in segments if not is_horizontal_or_vertical(s)))
-    return num_overlapping_points(grid)
-
-
-def num_overlapping_points(grid):
-    return len([sq for row in grid for sq in row if sq == 2])
+def part2(segments):
+    return solve_num_overlaps(segments)
 
 
 def is_horizontal_or_vertical(segment):
@@ -18,7 +13,8 @@ def is_horizontal_or_vertical(segment):
     return x1 == x2 or y1 == y2
 
 
-def populate_grid(grid, segments):
+def solve_num_overlaps(segments):
+    grid = [[0] * 1000 for _ in range(1000)]
     for (x1, y1), (x2, y2) in segments:
         vertical_diff = y2 - y1
         horizontal_diff = x2 - x1
@@ -30,6 +26,7 @@ def populate_grid(grid, segments):
             x1 += horizontal_step
             y1 += vertical_step
         grid[x1][y1] = 1 if grid[x1][y1] == 0 else 2
+    return len([sq for row in grid for sq in row if sq == 2])
 
 
 with open("../input.txt") as f:
@@ -41,6 +38,5 @@ with open("../input.txt") as f:
         return (int(x1), int(y1)), (int(x2), int(y2))
 
     segments = [parse_segment(line) for line in f]
-    grid = [[0] * 1000 for _ in range(1000)]
-    print("part 1", part1(grid, segments))
-    print("part 2", part2(grid, segments))
+    print("part 1", part1(segments))
+    print("part 2", part2(segments))
