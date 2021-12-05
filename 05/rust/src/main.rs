@@ -43,15 +43,11 @@ fn solve_num_overlaps(line_segments: &[Segment], predicate: fn(Segment) -> bool)
 
 fn set_grid(grid: &mut [[i16; N]], x: i16, y: i16) -> usize {
     let (x, y) = (x as usize, y as usize);
-    if grid[x][y] == 0 {
-        grid[x][y] = 1;
-        0
-    } else if grid[x][y] == 1 {
-        grid[x][y] = 2;
-        1
-    } else {
-        0
+    let overlap = grid[x][y] == 1;
+    if grid[x][y] == 0 || grid[x][y] == 1 {
+        grid[x][y] += 1
     }
+    overlap as usize
 }
 
 fn parse_line_segment(line: &str) -> Segment {
