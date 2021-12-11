@@ -27,20 +27,28 @@ def step(grid):
             if in_range(x + dx, y + dy) and (dx, dy) != (0, 0)
         ]
 
-    for row in grid:
-        for i in range(10):
-            row[i] += 1
-
-    while any(cell > 9 for row in grid for cell in row):
+    def single_pass(grid):
+        flashes = 0
         for x in range(10):
             for y in range(10):
                 if grid[x][y] > 9:
+                    flashes += 1
                     grid[x][y] = 0
                     for x_, y_ in neighbors(x, y):
                         if grid[x_][y_] > 0:
                             grid[x_][y_] += 1
+        return flashes
 
-    return sum(cell == 0 for row in grid for cell in row)
+    for row in grid:
+        for i in range(10):
+            row[i] += 1
+
+    total_flashes = 0
+    while True:
+        flashes = single_pass(grid)
+        if flashes == 0:
+            return total_flashes
+        total_flashes += flashes
 
 
 with open("../input.txt") as f:
