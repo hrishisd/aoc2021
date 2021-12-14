@@ -1,4 +1,4 @@
-use crate::Segment::*;
+use crate::Segment::{A, B, C, D, E, F, G};
 use enum_map::{enum_map, Enum, EnumMap};
 use enumset::{enum_set, EnumSet, EnumSetType};
 use itertools::Itertools;
@@ -78,22 +78,19 @@ fn solve(entry: &Entry) -> usize {
                 .for_each(|(l, r)| result[l] = r);
             result
         })
-        .find(|assignment| valid_assignment(assignment, entry.signal_patterns))
+        .find(|assignment| valid_assignment(*assignment, entry.signal_patterns))
         .expect("No valid assignments");
     entry
         .output_patterns
         .iter()
-        .map(|&display| transform_display(display, &assignment))
+        .map(|&display| transform_display(display, assignment))
         .map(read_digit)
         .fold(0, |acc, digit| {
             acc * 10 + digit.expect("invalid rhs display")
         })
 }
 
-fn valid_assignment(
-    assignment: &EnumMap<Segment, Segment>,
-    signal_patterns: [Display; 10],
-) -> bool {
+fn valid_assignment(assignment: EnumMap<Segment, Segment>, signal_patterns: [Display; 10]) -> bool {
     signal_patterns
         .iter()
         .map(|pattern| transform_display(*pattern, assignment))
@@ -103,7 +100,7 @@ fn valid_assignment(
         == 10
 }
 
-fn transform_display(display: Display, mapping: &EnumMap<Segment, Segment>) -> Display {
+fn transform_display(display: Display, mapping: EnumMap<Segment, Segment>) -> Display {
     display.iter().map(|segment| mapping[segment]).collect()
 }
 

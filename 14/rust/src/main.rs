@@ -1,5 +1,4 @@
 #![feature(array_windows)]
-#![warn(clippy::pedantic)]
 
 use core::panic;
 use itertools::Itertools;

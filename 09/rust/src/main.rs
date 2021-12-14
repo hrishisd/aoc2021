@@ -19,7 +19,7 @@ fn part1(grid: &[Vec<u32>]) -> u32 {
         .filter(|(x, y)| {
             neighbors(*x, *y, grid)
                 .into_iter()
-                .all(|(_x, _y)| grid[*x][*y] < grid[_x][_y])
+                .all(|(x_, y_)| grid[*x][*y] < grid[x_][y_])
         })
         .map(|(x, y)| grid[x][y] + 1)
         .sum()
@@ -30,7 +30,7 @@ fn part2(grid: &mut [Vec<u32>]) -> u32 {
     for x in 0..grid.len() {
         for y in 0..grid[x].len() {
             if grid[x][y] != 9 {
-                basin_sizes.push(explore(grid, x, y))
+                basin_sizes.push(explore(grid, x, y));
             }
         }
     }
